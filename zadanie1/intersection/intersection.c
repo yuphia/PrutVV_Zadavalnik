@@ -48,6 +48,10 @@ int main (int argc, char* argv[])
     quickSort (set1.array, 0, set1.amountOfElements - 1);
     quickSort (set2.array, 0, set2.amountOfElements - 1);
 
+    printArray (set1.array, set1.amountOfElements);
+    printArray (set2.array, set2.amountOfElements);
+ 
+
     rewriteIntersection (set1, set2);
 
     free (set1.array);
@@ -171,6 +175,12 @@ int binarySearch (int target, Set set)
 
     while (left < right)
     {
+        if (target == set.array[right])
+            return right;
+
+        if (target == set.array[left])
+            return left;
+
         if (set.array[middle] == target)
            return middle;
         else if(set.array[middle] > target)
@@ -184,19 +194,24 @@ int binarySearch (int target, Set set)
 void rewriteIntersection (Set set1, Set set2)
 {
     int* intersection = (int*) calloc (1, sizeof(int));
-    int elementsInter = 0;
+    size_t elementsInter = 0;
 
     for (int i = 0; i < set1.amountOfElements; i++)
     {
         int indOfElInSet2 = binarySearch (set1.array[i], set2);
-        if (indOfElInSet2 != -1)
+
+        Set set = {intersection, elementsInter};
+        if (indOfElInSet2 != -1 && binarySearch (set1.array[i], set) == -1)
         {
             elementsInter++;
             intersection = (int*) realloc (intersection, elementsInter * sizeof(int));
             intersection[elementsInter - 1] = set1.array[i];
         }
     }
-    printArray (intersection, elementsInter);
+    if (elementsInter == 0)
+        printf ("empty\n");
+    else
+        printArray (intersection, elementsInter);
 
     free (intersection);
 }
