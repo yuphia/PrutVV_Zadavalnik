@@ -5,6 +5,8 @@
 #define $ printf("in line: %d\n", __LINE__);\
           fflush (stdout);
 
+#define middle (left + right)/2
+
 struct Set 
     {
         int* array;
@@ -14,9 +16,16 @@ struct Set
 size_t skipSpaces (char* str);
 Set readArrayFromStr (char* str);
 char* skipNumbers (char* str);
+
 int partition (int* array, int lowIndex, int highIndex);
 void quickSort (int* array, int lowIndex, int highIndex);
-void swap (int n1, int n2);
+void swap (int *n1, int *n2);
+
+void printArray (int * array, size_t arraySize);
+
+int binarySearch (int target, Set set);
+
+void rewriteIntersection (Set set1, Set set2);
 
 int main (int argc, char* argv[])
 {
@@ -36,7 +45,10 @@ int main (int argc, char* argv[])
     Set set1 = readArrayFromStr (arrays.lines[0].line);
     Set set2 = readArrayFromStr (arrays.lines[1].line);
 
-    quickSort (set1.array, 0, set1.amountOfElements);
+    quickSort (set1.array, 0, set1.amountOfElements - 1);
+    quickSort (set2.array, 0, set2.amountOfElements - 1);
+
+    rewriteIntersection (set1, set2);
 
     free (set1.array);
     free (set2.array);
@@ -70,7 +82,7 @@ Set readArrayFromStr (char* str)
         if (*str == '\n' || *str == '\0')
             break;
     }
- 
+    set.array = array;
     return set;
 }
 
@@ -100,7 +112,7 @@ void quickSort (int* array, int lowIndex, int highIndex)
     if (highIndex > lowIndex)
     {
         int pivotInd = partition (array, lowIndex, highIndex);
-
+        
         quickSort (array, lowIndex, pivotInd);
         quickSort (array, pivotInd + 1, highIndex);
     }
@@ -114,23 +126,77 @@ int partition (int* array, int lowIndex, int highIndex)
 
     while (true)
     {
-        while (array [i] < lowIndex)
+        while (array [i] < pivot)
             i++;
-        while (array [j] > highIndex)
-            j++;
+        while (array [j] > pivot)
+            j--;
 
         if (i >= j)
             return j;
 
-        swap (array [i], array[j]);        
+        swap (array + i, array + j);        
+        i++;
+        j--;
     }
 
     return 0;
 }
 
-void swap (int n1, int n2)
+void swap (int *n1, int *n2)
 {
-    int tempN = n1;
-    n1 = n2;
-    n2 = tempN;
+    int tempN = *n1;
+    *n1 = *n2;
+    *n2 = tempN;
+}
+
+void printArray (int * array, size_t arraySize)
+{
+    for (int i = 0; i < arraySize; i++)
+    {
+        printf ("%d ", array[i]);   
+    }
+    printf ("\n");
+}
+
+int binarySearch (int target, Set set)
+{
+    int left  = 0;
+    int right = set.amountOfElements - 1;
+
+    if (target == set.array[right])
+        return right;
+
+    if (target == set.array[left])
+        return left;
+
+    while (left < right)
+    {
+        if (set.array[middle] == target)
+           return middle;
+        else if(set.array[middle] > target)
+            right = middle - 1;
+        else
+            left = middle + 1;
+    }
+    return -1;
+}
+
+void rewriteIntersection (Set set1, Set set2)
+{
+    int* intersection = (int*) calloc (1, sizeof(int));
+    int elementsInter = 0;
+
+    for (int i = 0; i < set1.amountOfElements; i++)
+    {
+        int indOfElInSet2 = binarySearch (set1.array[i], set2);
+        if (indOfElInSet2 != -1)
+        {
+            elementsInter++;
+            intersection = (int*) realloc (intersection, elementsInter * sizeof(int));
+            intersection[elementsInter - 1] = set1.array[i];
+        }
+    }
+    printArray (intersection, elementsInter);
+
+    free (intersection);
 }
