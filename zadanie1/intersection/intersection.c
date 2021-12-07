@@ -14,6 +14,9 @@ struct Set
 size_t skipSpaces (char* str);
 Set readArrayFromStr (char* str);
 char* skipNumbers (char* str);
+int partition (int* array, int lowIndex, int highIndex);
+void quickSort (int* array, int lowIndex, int highIndex);
+void swap (int n1, int n2);
 
 int main (int argc, char* argv[])
 {
@@ -26,22 +29,14 @@ int main (int argc, char* argv[])
     }
 
     FILE* setFile = nullptr;
-    setFile = fopen (argv[1], "rb");
+    setFile = fopen (argv[1], "r");
 
     transitFileToLineArray (setFile, &arrays);
-
-    printf ("%p %p\n", arrays.lines[0].line, arrays.lines[1].line);
 
     Set set1 = readArrayFromStr (arrays.lines[0].line);
     Set set2 = readArrayFromStr (arrays.lines[1].line);
 
-    for (int i = 0; i < set1.amountOfElements; i++)
-        printf ("set1[%d] = %d\n", i, set1.array[i]);
-
-
-    printf ("%zu\n", sizeof set2);
-    for (int i = 0; i < set2.amountOfElements; i++)
-        printf ("set2[%d] = %d\n", i, set2.array[i]);
+    quickSort (set1.array, 0, set1.amountOfElements);
 
     free (set1.array);
     free (set2.array);
@@ -53,31 +48,27 @@ int main (int argc, char* argv[])
 
 Set readArrayFromStr (char* str)
 {
-    $
     int* array = (int*) calloc (1, sizeof(int));
-    Set set = {array, 0};
-$
-//    str = str + skipSpaces(str);
-    printf ("%p\n", str);
-//    sscanf (str, "%d", array);
-//    str = skipNumbers (str);    
-$
-    for (int i = 1; *str != '\n'; str++, i++)
-    {
-        $
+    Set set = {array, 1};
 
-        str = skipSpaces(str) + str;
-        printf ("str = %s\n", str);
+    str = str + skipSpaces(str);
+      
+    sscanf (str, "%d", array);
+    str = skipNumbers (str);    
+    str += skipSpaces (str);
+
+    for (int i = 1; *str != '\n' && *str != '\0'; i++)
+    {
         array = (int*)realloc (array, (i + 1)*sizeof (int));
+
         sscanf (str, "%d", array + i);
 
         str = skipNumbers (str);
-            
-        printf ("str = %c\n", *str);
-        printf ("str = %s\n", str);
-
-        printf ("number read = %d\n", array[i]); 
+        str += skipSpaces (str);            
         set.amountOfElements = i + 1;
+
+        if (*str == '\n' || *str == '\0')
+            break;
     }
  
     return set;
@@ -85,24 +76,61 @@ $
 
 size_t skipSpaces (char* str)
 {
-$
-
     size_t thisSymbolPlace = 0;
     for (; thisSymbolPlace < sizeof(str); thisSymbolPlace++)
     {
-        $
         if (*(str + thisSymbolPlace) != ' ')
             return thisSymbolPlace;
     }
-$
+
     return thisSymbolPlace;
 }
 
 char* skipNumbers (char* str)
 {
-    while (isalpha (*str))
+    while (isdigit (*str))
     {
         str++;
     }
-    return str - 1;
+    return str;
+}
+
+void quickSort (int* array, int lowIndex, int highIndex)
+{
+    if (highIndex > lowIndex)
+    {
+        int pivotInd = partition (array, lowIndex, highIndex);
+
+        quickSort (array, lowIndex, pivotInd);
+        quickSort (array, pivotInd + 1, highIndex);
+    }
+}
+
+int partition (int* array, int lowIndex, int highIndex)
+{
+    int pivot = array [(lowIndex + highIndex)/2];
+    int i = lowIndex;
+    int j = highIndex;
+
+    while (true)
+    {
+        while (array [i] < lowIndex)
+            i++;
+        while (array [j] > highIndex)
+            j++;
+
+        if (i >= j)
+            return j;
+
+        swap (array [i], array[j]);        
+    }
+
+    return 0;
+}
+
+void swap (int n1, int n2)
+{
+    int tempN = n1;
+    n1 = n2;
+    n2 = tempN;
 }

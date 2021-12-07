@@ -101,7 +101,6 @@ struct Line* transitTextToLineArray (size_t* lineAmount, char* text)
         {
             arrayOfStrings[i].line = startOfLine;
             arrayOfStrings[i].lineSize = (size_t)(endOfLine - startOfLine);
-
             startOfLine = endOfLine + termChars;
         }
         else
@@ -161,7 +160,7 @@ bool isLineEmpty (char* line)
 {
     for (; *line != '\0'; line++)
     {
-        if (isalpha(*line))
+        if (isalpha(*line) || isdigit (*line))
             return 0;
     }
 
