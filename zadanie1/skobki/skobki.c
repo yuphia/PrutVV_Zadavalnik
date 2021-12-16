@@ -1,7 +1,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 
-void syntaxError ();
+int syntaxError (int isPrinter);
 void isStructureCorrect (char* str);
 void getG (char* str);
 void getN();
@@ -33,10 +33,15 @@ void getG (char* str)
 
     getE();
 
+    int counter = syntaxError (0);
+
     if (*(string) != '\0')
-        syntaxError();
-    else
-        printf ("Bracket structure is ok\n");
+    {
+        printf ("bebrastructure");
+        syntaxError(1);
+    }
+    else if (counter == 1)
+        printf ("bracket structure is ok\n");
 }
 
 void getE ()
@@ -62,7 +67,7 @@ void getN()
         
         if (*string != '}')
         {
-            syntaxError();       
+            syntaxError(1);       
             break;
         }
         string++;
@@ -78,7 +83,7 @@ void getD()
         
         if (*string != ')')
         {
-            syntaxError();       
+            syntaxError(1);       
             break;
         }
         string++;
@@ -94,7 +99,7 @@ void getT()
         
         if (*string != ']')
         {
-            syntaxError();       
+            syntaxError(1);       
             break;
         }
         string++;
@@ -110,19 +115,22 @@ void getP()
         
         if (*string != '>')
         {
-            syntaxError();       
+            syntaxError(1);       
             break;
         }
         string++;
     }
 }
 
-void syntaxError ()
+int syntaxError (int isPrinter)
 {
     static int counter = 1;
 
-    if (counter == 1)
+//    printf ("counter = %d\n", counter);
+
+    if (counter == 1 && isPrinter != 0)
         printf ("syntax error: Bracket structure is broken on symbol: %c\n", *string);
 
     counter++;
+    return counter-1;
 }
